@@ -1,4 +1,5 @@
 from tkinter import Tk, BOTH, Canvas
+from time import sleep
 
 class Window:
 
@@ -52,7 +53,7 @@ class Line:
 
 class Cell:
 
-    def __init__(self, window):
+    def __init__(self, window=None):
         self.has_left_wall = True
         self.has_right_wall = True
         self.has_top_wall = True
@@ -118,7 +119,7 @@ class Cell:
 
 class Maze:
 
-    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win):
+    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win=None):
         self.x1 = x1
         self.y1 = y1
         self.num_rows = num_rows
@@ -129,6 +130,34 @@ class Maze:
         self._cells = []
 
         self._create_cells()
+
+    def _create_cells(self):
+        for i in self.num_cols:
+            cells = []
+            for j in self.num_rows:
+                cells.append(Cell(self.win))
+            self._cells.append(cells)
+        
+        for i in range(self.num_cols):
+            for j in range(self.num_rows):
+                self._draw_cell(self, i, j)
+        
+    def _draw_cell(self, i, j):
+        cell = self._cells[i][j]
+
+        cell._x1 = self.x1 + self.cell_size_x * i
+        cell._x2 = self.x1 + self.cell_size_x * (i + 1)
+        cell._y1 = self.y1 + self.cell_size_y * j
+        cell._y2 = self.y1 + self.cell_size_y * (j +1)
+
+        cell.draw()
+
+        self._animate()
+
+    def _animate(self):
+        self.win.redraw()
+        sleep(0.5)
+
 
 
 def main():
