@@ -132,15 +132,15 @@ class Maze:
         self._create_cells()
 
     def _create_cells(self):
-        for i in self.num_cols:
+        for i in range(self.num_cols):
             cells = []
-            for j in self.num_rows:
+            for j in range(self.num_rows):
                 cells.append(Cell(self.win))
             self._cells.append(cells)
         
         for i in range(self.num_cols):
             for j in range(self.num_rows):
-                self._draw_cell(self, i, j)
+                self._draw_cell(i, j)
         
     def _draw_cell(self, i, j):
         cell = self._cells[i][j]
@@ -157,17 +157,3 @@ class Maze:
     def _animate(self):
         self.win.redraw()
         sleep(0.5)
-
-
-
-def main():
-
-    win = Window(800, 600)
-
-    cell1 = Cell(10,10,20,20,win)
-    cell1.draw()
-    cell2 = Cell(50,50,60,60, win)
-    cell2.draw()
-    win.wait_for_close()
-
-main()
