@@ -301,4 +301,5 @@ def main():
 
     win.wait_for_close()
 
-main()
+if __name__ == "__main__":
+    main()
