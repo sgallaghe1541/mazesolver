@@ -1,5 +1,6 @@
 from tkinter import Tk, BOTH, Canvas
 from time import sleep
+import random
 
 class Window:
 
@@ -136,7 +137,7 @@ class Cell:
 
 class Maze:
 
-    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win=None):
+    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win=None, seed=None):
         self.x1 = x1
         self.y1 = y1
         self.num_rows = num_rows
@@ -145,9 +146,13 @@ class Maze:
         self.cell_size_y = cell_size_y
         self.win = win
         self._cells = []
+        self.seed = seed
+        if seed != None:
+            self.seed = random.seed(seed)
 
         self._create_cells()
         self._break_entrance_and_exit()
+        self._break_walls_r(0,0)
 
     def _create_cells(self):
         for i in range(self.num_cols):
@@ -179,17 +184,71 @@ class Maze:
     def _break_entrance_and_exit(self):
         maze_entrance = self._cells[0][0]
         maze_entrance.has_left_wall = False
-        maze_entrance.has_right_wall = False
-        maze_entrance.has_top_wall = False
-        maze_entrance.has_bottom_wall = False
-        self._draw_cell(0,0)
+        # maze_entrance.has_right_wall = False
+        # maze_entrance.has_top_wall = False
+        # maze_entrance.has_bottom_wall = False
+        maze_entrance.draw()
 
         maze_exit = self._cells[-1][-1]
-        maze_exit.has_left_wall = False
+        # maze_exit.has_left_wall = False
         maze_exit.has_right_wall = False
-        maze_exit.has_top_wall = False
-        maze_exit.has_bottom_wall = False
-        self._draw_cell(self.num_cols-1, self.num_rows-1)
+        # maze_exit.has_top_wall = False
+        # maze_exit.has_bottom_wall = False
+        maze_exit.draw()
+
+    def _break_walls_r(self, i, j):
+        current_cell = self._cells[i][j]
+        current_cell.visited = True
+
+        while True:
+            to_visit = []
+           
+            if i > 0 and not self._cells[i-1][j].visited:
+                left = (i-1,j)
+                to_visit.append(left)
+           
+            if i < self.num_cols - 1 and not self._cells[i+1][j].visited:
+                right = (i+1,j)
+                to_visit.append(right)
+          
+            if j > 0 and not self._cells[i][j-1].visited:
+                top = (i, j-1)
+                to_visit.append(top)
+            
+            if j < self.num_rows -1 and not self._cells[i][j+1].visited:
+                bottom = (i, j+1)
+                to_visit.append(bottom)
+          
+            if not to_visit:
+                current_cell.draw()
+                return
+            
+            (next_i, next_j) = random.choice(to_visit)
+            next_cell = self._cells[next_i][next_j]
+
+            if next_i == i:
+                if next_j < j:
+                    current_cell.has_bottom_wall = False
+                    next_cell.has_top_wall = False
+                else:
+                    current_cell.has_top_wall = False
+                    next_cell.has_bottom_wall = False
+            else:
+                if next_i > i:
+                    current_cell.has_right_wall = False
+                    next_cell.has_left_wall = False
+                else:
+                    current_cell.has_left_wall = False
+                    next_cell.has_right_wall = False
+            
+            current_cell.draw()
+            next_cell.draw()
+
+            self._break_walls_r(next_i, next_j)
+
+
+            
+
 
 def main():
     win = Window(800, 600)
