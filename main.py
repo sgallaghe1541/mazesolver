@@ -9,7 +9,7 @@ class Window:
         self.__root = Tk()
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
         self.title = "Maze Solver"
-        self.canvas = Canvas()
+        self.canvas = Canvas(bg="white")
         self.running = False
 
         self.canvas.pack()
@@ -53,7 +53,7 @@ class Line:
 
 class Cell:
 
-    def __init__(self, window=None):
+    def __init__(self, win=None):
         self.has_left_wall = True
         self.has_right_wall = True
         self.has_top_wall = True
@@ -62,7 +62,8 @@ class Cell:
         self._x2 = 0
         self._y1 = 0
         self._y2 = 0
-        self._win = window
+        self._win = win
+        self.visited = False
 
     def draw(self):
         if self._x1 < self._x2:
@@ -99,6 +100,22 @@ class Cell:
         if self.has_bottom_wall:
             bottom_wall = Line(bottom_left, bottom_right)
             bottom_wall.draw(self._win.canvas, "black")
+        
+        if not self.has_left_wall:
+            left_wall = Line(top_left, bottom_left)
+            left_wall.draw(self._win.canvas, "white")
+        
+        if not self.has_right_wall:
+            right_wall = Line(top_right, bottom_right)
+            right_wall.draw(self._win.canvas, "white")
+        
+        if not self.has_top_wall:
+            top_wall = Line(top_left, top_right)
+            top_wall.draw(self._win.canvas, "white")
+
+        if not self.has_bottom_wall:
+            bottom_wall = Line(bottom_left, bottom_right)
+            bottom_wall.draw(self._win.canvas, "white")
 
     def draw_move(self, to_cell, undo = False):
         from_x = (self._x1 + self._x2) / 2
@@ -130,12 +147,13 @@ class Maze:
         self._cells = []
 
         self._create_cells()
+        self._break_entrance_and_exit()
 
     def _create_cells(self):
         for i in range(self.num_cols):
             cells = []
             for j in range(self.num_rows):
-                cells.append(Cell(self.win))
+                cells.append(Cell(win=self.win))
             self._cells.append(cells)
         
         for i in range(self.num_cols):
@@ -156,4 +174,30 @@ class Maze:
 
     def _animate(self):
         self.win.redraw()
-        sleep(0.5)
+        sleep(0.05)
+
+    def _break_entrance_and_exit(self):
+        maze_entrance = self._cells[0][0]
+        maze_entrance.has_left_wall = False
+        maze_entrance.has_right_wall = False
+        maze_entrance.has_top_wall = False
+        maze_entrance.has_bottom_wall = False
+        self._draw_cell(0,0)
+
+        maze_exit = self._cells[-1][-1]
+        maze_exit.has_left_wall = False
+        maze_exit.has_right_wall = False
+        maze_exit.has_top_wall = False
+        maze_exit.has_bottom_wall = False
+        self._draw_cell(self.num_cols-1, self.num_rows-1)
+
+def main():
+    win = Window(800, 600)
+
+    num_cols = 5
+    num_rows = 5
+    m1 = Maze(2, 2, num_rows, num_cols, 20, 20, win=win)
+
+    win.wait_for_close()
+
+main()
